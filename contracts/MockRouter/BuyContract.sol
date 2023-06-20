@@ -4,10 +4,9 @@ import "uniswap-v2-contract/contracts/uniswap-v2-periphery/interfaces/IUniswapV2
 import "uniswap-v2-contract/contracts/uniswap-v2-core/interfaces/IUniswapV2Factory.sol";
 import "uniswap-v2-contract/contracts/uniswap-v2-core/interfaces/IUniswapV2Pair.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract BuyContract is OwnableUpgradeable {
+contract BuyContract is Ownable {
     // Address of the Uniswap v2 router
     address public UNISWAP_V2_ROUTER;
 
@@ -20,8 +19,23 @@ contract BuyContract is OwnableUpgradeable {
 
     address private maintanierAddress;
 
-    constructor() {
-        _disableInitializers();
+    constructor(
+        address _router,
+        address _Weth,
+        address _maintanierAddress,
+        address _platformAddress
+    ) {
+        require(_router != address(0), "BC:Invalid router address");
+        require(_Weth != address(0), "BC:Invalid WETH address");
+        require(
+            _maintanierAddress != address(0),
+            "BC:Invalid maintainer address"
+        );
+        require(_platformAddress != address(0), "BC:Invalid platform address");
+        UNISWAP_V2_ROUTER = _router;
+        WETH = _Weth;
+        maintanierAddress = _maintanierAddress;
+        platformAddress = _platformAddress;
     }
 
     modifier ZeroAddress(address _account) {
@@ -40,25 +54,6 @@ contract BuyContract is OwnableUpgradeable {
         uint256 amountOut,
         address indexed to
     );
-
-    function initialize(
-        address _router,
-        address _Weth,
-        address _maintanierAddress,
-        address _platformAddress
-    ) public initializer {
-        require(_router != address(0), "BC:Invalid router address");
-        require(_Weth != address(0), "BC:Invalid WETH address");
-        require(
-            _maintanierAddress != address(0),
-            "BC:Invalid maintainer address"
-        );
-        require(_platformAddress != address(0), "BC:Invalid platform address");
-        UNISWAP_V2_ROUTER = _router;
-        WETH = _Weth;
-        maintanierAddress = _maintanierAddress;
-        platformAddress = _platformAddress;
-    }
 
     /**
      * Perform a token swap from one token to another
