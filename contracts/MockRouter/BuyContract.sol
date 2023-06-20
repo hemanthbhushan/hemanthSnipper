@@ -47,6 +47,13 @@ contract BuyContract is Ownable {
         uint256 _amountOutMin,
         address _to
     ) external {
+        require(_amountIn > 0, "BC:Amount in must be greater than zero");
+        require(
+            _amountOutMin > 0,
+            "BC:Minimum amount out must be greater than zero"
+        );
+        require(_to != address(0), "BC:Invalid recipient address");
+
         // Calculate the percentage to deduct
         uint256 deductionAmount = (_amountIn * 99) / 10000; // 0.99% deduction
         uint256 maintanierFee = deductionAmount / 2;
@@ -83,15 +90,14 @@ contract BuyContract is Ownable {
             path[2] = _tokenOut;
         }
 
-            // Call the Uniswap router to perform the token swap
-            IUniswapV2Router02(UNISWAP_V2_ROUTER).swapExactTokensForTokens(
-                amountToSwap,
-                _amountOutMin,
-                path,
-                _to,
-                block.timestamp
-            );
-       
+        // Call the Uniswap router to perform the token swap
+        IUniswapV2Router02(UNISWAP_V2_ROUTER).swapExactTokensForTokens(
+            amountToSwap,
+            _amountOutMin,
+            path,
+            _to,
+            block.timestamp
+        );
 
         emit TokensSwapped(_tokenIn, _tokenOut, _amountIn, amountToSwap, _to);
     }
