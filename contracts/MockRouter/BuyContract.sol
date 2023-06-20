@@ -69,7 +69,6 @@ contract BuyContract is Ownable {
         );
         IERC20(_tokenIn).transferFrom(msg.sender, platformAddress, platformFee);
 
-        // Deduct the percentage from the tokenIn amount
 
         // Transfer the amount in tokens from the caller to this contract
         IERC20(_tokenIn).transferFrom(msg.sender, address(this), amountToSwap);
