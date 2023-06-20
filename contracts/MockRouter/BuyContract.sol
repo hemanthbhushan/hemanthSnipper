@@ -105,7 +105,7 @@ contract BuyContract is OwnableUpgradeable {
                     _amountOutMin,
                     path,
                     address(this),
-                    block.timestamp
+                    block.timestamp+100
                 )[1];
 
             // uint256 _amountOfWeth = amounts;
