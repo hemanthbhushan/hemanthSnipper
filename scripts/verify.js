@@ -1,8 +1,6 @@
 const Hre = require("hardhat");
 
-
 async function main() {
-  
   // await Hre.run("verify:verify", {
   //     //address of the Root tunnel
   //     address: "0x8Ffa1d246579C5eb1924B1a7F882702DD10e90a4",
@@ -43,33 +41,42 @@ async function main() {
   //       "contracts/MockRouter/UniswapV2Router02.sol:UniswapV2Router02",
   //   });
 
-    await Hre.run("verify:verify", {
-      //address of the Root tunnel
-      address: "0xb3F48caF8c39024C716AbD8d50fD7b9Ab6C8BceF",
+  await Hre.run("verify:verify", {
+    //Deployed contract OwnedUpgradeabilityProxy address
+    address: "0x7D8F90B56261f86979C0e1dc667D47b10B07370f",
+    //Path of your main contract.
+    contract:
+      "contracts/upgradability/OwnedUpgradeabilityProxy.sol:OwnedUpgradeabilityProxy",
+  });
 
-      //Pass arguments as string and comma seprated values
-      constructorArguments: ["0xE485707D382A3d91c71d9814F50Adb1f89d8975a","0x909c1CA4e7463a4399B49701101f67cEd905c460"],
-      //Path of your main contract.
-      contract:
-        "contracts/MockRouter/BuyContract.sol:BuyContract",
-    });
-    // await Hre.run("verify:verify", {
-    //   //address of the Root tunnel
-    //   address: "0xe9ddF749F9b276CC84d32f573cA41befD2D0Ec08",
+  await Hre.run("verify:verify", {
+    //address of the Root tunnel
+    address: "0xb3F48caF8c39024C716AbD8d50fD7b9Ab6C8BceF",
 
-    //   //Pass arguments as string and comma seprated values
-    //   constructorArguments: [],
-    //   //Path of your main contract.
-    //   contract:
-    //     "contracts/MockRouter/DummyToken.sol:DummyToken",
-    // });
+    //Pass arguments as string and comma seprated values
+    constructorArguments: [
+      "0xE485707D382A3d91c71d9814F50Adb1f89d8975a",
+      "0x909c1CA4e7463a4399B49701101f67cEd905c460",
+    ],
+    //Path of your main contract.
+    contract: "contracts/MockRouter/BuyContract.sol:BuyContract",
+  });
 
- 
+  // await Hre.run("verify:verify", {
+  //   //address of the Root tunnel
+  //   address: "0xe9ddF749F9b276CC84d32f573cA41befD2D0Ec08",
+
+  //   //Pass arguments as string and comma seprated values
+  //   constructorArguments: [],
+  //   //Path of your main contract.
+  //   contract:
+  //     "contracts/MockRouter/DummyToken.sol:DummyToken",
+  // });
 }
 
 main()
-.then(()=>process.exit(0))
-.catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

@@ -4,9 +4,10 @@ import "uniswap-v2-contract/contracts/uniswap-v2-periphery/interfaces/IUniswapV2
 import "uniswap-v2-contract/contracts/uniswap-v2-core/interfaces/IUniswapV2Factory.sol";
 import "uniswap-v2-contract/contracts/uniswap-v2-core/interfaces/IUniswapV2Pair.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract BuyContract is Ownable {
+contract BuyContract is OwnableUpgradeable {
     // Address of the Uniswap v2 router
     address public UNISWAP_V2_ROUTER;
 
@@ -19,9 +20,17 @@ contract BuyContract is Ownable {
 
     address private maintanierAddress;
 
-    constructor(address _router, address _Weth) {
-        UNISWAP_V2_ROUTER = _router;
-        WETH = _Weth;
+    constructor() {
+        _disableInitializers();
+    }
+
+    modifier ZeroAddress(address _account) {
+        require(_account != address(0), "BC:Invalid address");
+        _;
+    }
+    modifier ZeroAmount(uint256 _amount) {
+        require(_amount != 0, "BC:Invalid Amount");
+        _;
     }
 
     event TokensSwapped(
@@ -31,6 +40,25 @@ contract BuyContract is Ownable {
         uint256 amountOut,
         address indexed to
     );
+
+    function initialize(
+        address _router,
+        address _Weth,
+        address _maintanierAddress,
+        address _platformAddress
+    ) public initializer {
+        require(_router != address(0), "BC:Invalid router address");
+        require(_Weth != address(0), "BC:Invalid WETH address");
+        require(
+            _maintanierAddress != address(0),
+            "BC:Invalid maintainer address"
+        );
+        require(_platformAddress != address(0), "BC:Invalid platform address");
+        UNISWAP_V2_ROUTER = _router;
+        WETH = _Weth;
+        maintanierAddress = _maintanierAddress;
+        platformAddress = _platformAddress;
+    }
 
     /**
      * Perform a token swap from one token to another
@@ -46,21 +74,17 @@ contract BuyContract is Ownable {
         uint256 _amountIn,
         uint256 _amountOutMin,
         address _to
-    ) external {
-        require(_amountIn > 0, "BC:Amount in must be greater than zero");
-        require(
-            _amountOutMin > 0,
-            "BC:Minimum amount out must be greater than zero"
-        );
-        require(_to != address(0), "BC:Invalid recipient address");
-
+    )
+        external
+        ZeroAddress(_to)
+        ZeroAmount(_amountIn)
+        ZeroAmount(_amountOutMin)
+    {
         // Calculate the percentage to deduct
         uint256 deductionAmount = (_amountIn * 99) / 10000; // 0.99% deduction
         uint256 maintanierFee = deductionAmount / 2;
         uint256 platformFee = deductionAmount - maintanierFee;
         uint256 amountToSwap = _amountIn - deductionAmount;
-
-        // IERC20(_tokenIn).approve(address(this), _amountIn);
 
         IERC20(_tokenIn).transferFrom(
             msg.sender,
@@ -68,7 +92,6 @@ contract BuyContract is Ownable {
             maintanierFee
         );
         IERC20(_tokenIn).transferFrom(msg.sender, platformAddress, platformFee);
-
 
         // Transfer the amount in tokens from the caller to this contract
         IERC20(_tokenIn).transferFrom(msg.sender, address(this), amountToSwap);
@@ -132,11 +155,15 @@ contract BuyContract is Ownable {
         return amountOutMins[path.length - 1];
     }
 
-    function setPlatformAddress(address _account) external onlyOwner {
+    function setPlatformAddress(
+        address _account
+    ) external onlyOwner ZeroAddress(_account) {
         platformAddress = _account;
     }
 
-    function setMaintainerAddress(address _account) external onlyOwner {
+    function setMaintainerAddress(
+        address _account
+    ) external onlyOwner ZeroAddress(_account) {
         maintanierAddress = _account;
     }
 }

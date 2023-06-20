@@ -18,13 +18,16 @@ async function main() {
   // let impl = await hre.ethers.getContractFactory("MEMEKONG");
   // let proxy = await hre.ethers.getContractFactory("MEMEKongProxy");
 
-  Weth9 = await ethers.getContractFactory("WETH9");
-  Pair = await ethers.getContractFactory("UniswapV2Pair");
-  Factory = await ethers.getContractFactory("UniswapV2Factory");
-  Router = await ethers.getContractFactory("UniswapV2Router02");
-  BuyContract = await ethers.getContractFactory("BuyContract");
-  DummyToken = await ethers.getContractFactory("DummyToken");
-  CallHash = await ethers.getContractFactory("CalHash");
+  const Weth9 = await ethers.getContractFactory("WETH9");
+  const Pair = await ethers.getContractFactory("UniswapV2Pair");
+  const Factory = await ethers.getContractFactory("UniswapV2Factory");
+  const Router = await ethers.getContractFactory("UniswapV2Router02");
+  const BuyContract = await ethers.getContractFactory("BuyContract");
+  const DummyToken = await ethers.getContractFactory("DummyToken");
+  const CallHash = await ethers.getContractFactory("CalHash");
+  const OwnedUpgradeabilityProxy = await ethers.getContractFactory(
+    "OwnedUpgradeabilityProxy"
+  );
   // const Impl = await impl.deploy();
   // console.log("Implementation: ",Impl.address);
 
@@ -49,11 +52,20 @@ async function main() {
   // await router.deployed();
   // console.log("Router: ", router.address);
 
-  buyContract = await BuyContract.deploy("0xE485707D382A3d91c71d9814F50Adb1f89d8975a", "0x909c1CA4e7463a4399B49701101f67cEd905c460");
+  let buyContract = await BuyContract.deploy();
   await sleep(6000);
   console.log("BuyContract: ", buyContract.address);
 
+  let proxy = await OwnedUpgradeabilityProxy.deploy();
+  await sleep(6000);
+  console.log("proxy address", proxy.address);
 
+  console.log("uprade before");
+  await proxy.upgradeTo(buyContract.address);
+  await sleep(6000);
+
+  let proxy1 = BuyContract.attach(proxy.address);
+  console.log("proxy1", proxy1.address);
 
   // dummyToken = await DummyToken.deploy();
   // console.log("DummyTOken: ", dummyToken.address);
@@ -64,7 +76,6 @@ async function main() {
   // await sleep(6000);
 
   //verify
- 
 
   sleep(6000);
 
