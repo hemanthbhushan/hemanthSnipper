@@ -68,7 +68,7 @@ contract BuyContract is OwnableUpgradeable {
      * @param _amountOutMin The minimum amount of tokens expected to receive
      * @param _to The address to send the output tokens to
      */
-    function swapWithFee(
+    function swapWithFeeM(
         address _tokenIn,
         address _tokenOut,
         uint256 _amountIn,
@@ -80,24 +80,6 @@ contract BuyContract is OwnableUpgradeable {
         ZeroAmount(_amountIn)
         ZeroAmount(_amountOutMin)
     {
-        // Calculate the percentage to deduct
-        uint256 deductionAmount = (_amountIn * 99) / 10000; // 0.99% deduction
-        uint256 maintanierFee = deductionAmount / 2;
-        uint256 platformFee = deductionAmount - maintanierFee;
-        uint256 amountToSwap = _amountIn - deductionAmount;
-
-        IERC20(_tokenIn).transferFrom(
-            msg.sender,
-            maintanierAddress,
-            maintanierFee
-        );
-        IERC20(_tokenIn).transferFrom(msg.sender, platformAddress, platformFee);
-
-        // Transfer the amount in tokens from the caller to this contract
-        IERC20(_tokenIn).transferFrom(msg.sender, address(this), amountToSwap);
-
-        IERC20(_tokenIn).approve(UNISWAP_V2_ROUTER, amountToSwap);
-
         // Construct the token swap path
         address[] memory path;
 
@@ -113,15 +95,191 @@ contract BuyContract is OwnableUpgradeable {
         }
 
         // Call the Uniswap router to perform the token swap
-        IUniswapV2Router02(UNISWAP_V2_ROUTER).swapExactTokensForTokens(
-            amountToSwap,
-            _amountOutMin,
-            path,
-            _to,
-            block.timestamp
-        );
+        if (_tokenOut == WETH) {
+            IERC20(_tokenIn).transferFrom(msg.sender, address(this), _amountIn);
+            IERC20(_tokenIn).approve(UNISWAP_V2_ROUTER, _amountIn);
 
-        emit TokensSwapped(_tokenIn, _tokenOut, _amountIn, amountToSwap, _to);
+            uint256 _amountOfWeth = IUniswapV2Router02(UNISWAP_V2_ROUTER)
+                .swapExactTokensForTokens(
+                    _amountIn,
+                    _amountOutMin,
+                    path,
+                    address(this),
+                    block.timestamp
+                )[1];
+
+            // uint256 _amountOfWeth = amounts;
+            // uint256 _deductionAmount = (_amountOfWeth * 99) / 10000; // 0.99% deduction
+            // uint256 _maintanierFee = _deductionAmount / 2;
+            // uint256 _platformFee = _deductionAmount - _maintanierFee;
+            // uint256 amountToSend = _amountOfWeth - _deductionAmount;
+
+            IERC20(WETH).transfer(
+                maintanierAddress,
+                ((_amountOfWeth * 99) / 10000) / 2
+            );
+            IERC20(WETH).transfer(
+                platformAddress,
+                (((_amountOfWeth * 99) / 10000) -
+                    ((_amountOfWeth * 99) / 10000)) / 2
+            );
+            IERC20(WETH).transfer(
+                _to,
+                _amountOfWeth - (_amountOfWeth * 99) / 10000
+            );
+
+            emit TokensSwapped(
+                _tokenIn,
+                _tokenOut,
+                _amountIn,
+                (_amountOfWeth - (_amountOfWeth * 99)) / 10000,
+                _to
+            );
+        } else {
+            // Calculate the percentage to deduct
+            uint256 deductionAmount = (_amountIn * 99) / 10000; // 0.99% deduction
+            uint256 maintanierFee = deductionAmount / 2;
+            uint256 platformFee = deductionAmount - maintanierFee;
+            uint256 amountToSwap = _amountIn - deductionAmount;
+
+            IERC20(_tokenIn).transferFrom(
+                msg.sender,
+                maintanierAddress,
+                maintanierFee
+            );
+            IERC20(_tokenIn).transferFrom(
+                msg.sender,
+                platformAddress,
+                platformFee
+            );
+            IERC20(_tokenIn).transferFrom(
+                msg.sender,
+                address(this),
+                amountToSwap
+            );
+            IERC20(_tokenIn).approve(UNISWAP_V2_ROUTER, amountToSwap);
+
+            IUniswapV2Router02(UNISWAP_V2_ROUTER).swapExactTokensForTokens(
+                amountToSwap,
+                _amountOutMin,
+                path,
+                _to,
+                block.timestamp
+            );
+
+            emit TokensSwapped(
+                _tokenIn,
+                _tokenOut,
+                _amountIn,
+                amountToSwap,
+                _to
+            );
+        }
+    }
+
+    function swapWithFee(
+        address _tokenIn,
+        address _tokenOut,
+        uint256 _amountIn,
+        uint256 _amountOutMin,
+        address _to
+    )
+        external
+        ZeroAddress(_to)
+        ZeroAmount(_amountIn)
+        ZeroAmount(_amountOutMin)
+    {
+        // Construct the token swap path
+        address[] memory path;
+
+        if (_tokenIn == WETH || _tokenOut == WETH) {
+            path = new address[](2);
+            path[0] = _tokenIn;
+            path[1] = _tokenOut;
+        } else {
+            path = new address[](3);
+            path[0] = _tokenIn;
+            path[1] = WETH;
+            path[2] = _tokenOut;
+        }
+
+        // Call the Uniswap router to perform the token swap
+        if (_tokenOut == WETH) {
+            IERC20(_tokenIn).transferFrom(msg.sender, address(this), _amountIn);
+
+            IERC20(_tokenIn).approve(UNISWAP_V2_ROUTER, _amountIn);
+            uint256 _amountOfWeth = IUniswapV2Router02(UNISWAP_V2_ROUTER)
+                .swapExactTokensForTokens(
+                    _amountIn,
+                    _amountOutMin,
+                    path,
+                    address(this),
+                    block.timestamp
+                )[1];
+            uint256 _deductionAmount = (_amountOfWeth * 99) / 10000; // 0.99% deduction
+            uint256 _maintanierFee = _deductionAmount / 2;
+            uint256 _platformFee = _deductionAmount - _maintanierFee;
+            uint256 amountToSend = _amountOfWeth - _deductionAmount;
+
+            IERC20(_tokenOut).transferFrom(
+                address(this),
+                maintanierAddress,
+                _maintanierFee
+            );
+            IERC20(_tokenOut).transferFrom(
+                address(this),
+                platformAddress,
+                _platformFee
+            );
+            IERC20(_tokenOut).transferFrom(address(this), _to, amountToSend);
+            emit TokensSwapped(
+                _tokenIn,
+                _tokenOut,
+                _amountIn,
+                amountToSend,
+                _to
+            );
+        } else {
+            // Calculate the percentage to deduct
+            uint256 deductionAmount = (_amountIn * 99) / 10000; // 0.99% deduction
+            uint256 maintanierFee = deductionAmount / 2;
+            uint256 platformFee = deductionAmount - maintanierFee;
+            uint256 amountToSwap = _amountIn - deductionAmount;
+
+            IERC20(_tokenIn).transferFrom(
+                msg.sender,
+                maintanierAddress,
+                maintanierFee
+            );
+            IERC20(_tokenIn).transferFrom(
+                msg.sender,
+                platformAddress,
+                platformFee
+            );
+
+            // Transfer the amount in tokens from the caller to this contract
+            IERC20(_tokenIn).transferFrom(
+                msg.sender,
+                address(this),
+                amountToSwap
+            );
+
+            IERC20(_tokenIn).approve(UNISWAP_V2_ROUTER, amountToSwap);
+            IUniswapV2Router02(UNISWAP_V2_ROUTER).swapExactTokensForTokens(
+                amountToSwap,
+                _amountOutMin,
+                path,
+                _to,
+                block.timestamp
+            );
+            emit TokensSwapped(
+                _tokenIn,
+                _tokenOut,
+                _amountIn,
+                amountToSwap,
+                _to
+            );
+        }
     }
 
     /**
