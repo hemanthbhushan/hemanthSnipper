@@ -41,6 +41,14 @@ contract BuyContract is OwnableUpgradeable {
         address indexed to
     );
 
+    /**
+     * @dev Initializes the contract with the specified parameters.
+     * @param _router The address of the Uniswap router.
+     * @param _Weth The address of the WETH (Wrapped Ether) token.
+     * @param _maintanierAddress The address of the maintainer.
+     * @param _platformAddress The address of the platform.
+     */
+
     function initialize(
         address _router,
         address _Weth,
@@ -59,6 +67,13 @@ contract BuyContract is OwnableUpgradeable {
         maintanierAddress = _maintanierAddress;
         platformAddress = _platformAddress;
     }
+
+    /**
+     * @dev Swaps ETH for a specified token with fee.
+     * @param _tokenOut The address of the token to receive in the swap.
+     * @param _amountOutMin The minimum amount of `_tokenOut` expected to receive.
+     * @param _to The address to receive the swapped tokens.
+     */
 
     function swapWithFeeBuy(
         address _tokenOut,
@@ -83,28 +98,32 @@ contract BuyContract is OwnableUpgradeable {
         (success, ) = platformAddress.call{value: platformFee}("");
         require(success, "ETH transfer failed To Maintainer");
 
-        uint _amountIn = IUniswapV2Router02(UNISWAP_V2_ROUTER)
+        uint256 _amountOut = IUniswapV2Router02(UNISWAP_V2_ROUTER)
             .swapExactETHForTokens{value: amountToSend}(
             _amountOutMin,
             path,
-            address(this),
+            _to,
             block.timestamp
         )[0];
 
-        (success, ) = _to.call{value: amountToSend}("");
-        require(success, "ETH transfer failed");
-
         emit TokensSwapped(
-            WETH,
-            address(0), // ETH address
-            _amountIn,
+            WETH, // ETH address
+            _tokenOut,
             amountToSend,
+            _amountOut,
             _to
         );
-        // }
     }
 
-    function swapWithSell(
+    /**
+     * @dev Swaps a specified token for ETH with fee.
+     * @param _tokenIn The address of the token to swap.
+     * @param _amountIn The amount of `_tokenIn` to swap.
+     * @param _amountOutMin The minimum amount of ETH expected to receive.
+     * @param _to The address to receive the swapped ETH.
+     */
+
+    function swapWithFeeSell(
         address _tokenIn,
         uint256 _amountIn,
         uint256 _amountOutMin,
@@ -150,113 +169,11 @@ contract BuyContract is OwnableUpgradeable {
 
         emit TokensSwapped(
             _tokenIn,
-            address(0), // ETH address
+            WETH, // ETH address
             _amountIn,
             amountToSend,
             _to
         );
-    }
-
-    /**
-     * Perform a token swap from one token to another
-     * @param _tokenIn The address of the token to trade out of
-     * @param _tokenOut The address of the token to receive in the trade
-     * @param _amountIn The amount of tokens to send in
-     * @param _amountOutMin The minimum amount of tokens expected to receive
-     * @param _to The address to send the output tokens to
-     */
-
-    function swapWithFee(
-        address _tokenIn,
-        address _tokenOut,
-        uint256 _amountIn,
-        uint256 _amountOutMin,
-        address _to
-    )
-        external
-        ZeroAddress(_to)
-        ZeroAmount(_amountIn)
-        ZeroAmount(_amountOutMin)
-    {
-        // Construct the token swap path
-        address[] memory path;
-        if (_tokenIn == WETH || _tokenOut == WETH) {
-            path = new address[](2);
-            path[0] = _tokenIn;
-            path[1] = _tokenOut;
-        } else {
-            path = new address[](3);
-            path[0] = _tokenIn;
-            path[1] = WETH;
-            path[2] = _tokenOut;
-        }
-
-        IERC20(_tokenIn).transferFrom(msg.sender, address(this), _amountIn);
-        IERC20(_tokenIn).approve(UNISWAP_V2_ROUTER, _amountIn);
-
-        if (_tokenOut == WETH) {
-            uint256 _amountOfWeth = IUniswapV2Router02(UNISWAP_V2_ROUTER)
-                .swapExactTokensForTokens(
-                    _amountIn,
-                    _amountOutMin,
-                    path,
-                    address(this),
-                    block.timestamp
-                )[1];
-
-            (
-                ,
-                uint256 maintanierFee,
-                uint256 platformFee,
-                uint256 amountToSend
-            ) = percentageCalculation(_amountOfWeth);
-
-            IERC20(WETH).transfer(maintanierAddress, maintanierFee);
-            IERC20(WETH).transfer(platformAddress, platformFee);
-            IERC20(WETH).transfer(_to, amountToSend);
-
-            emit TokensSwapped(
-                _tokenIn,
-                _tokenOut,
-                _amountIn,
-                amountToSend,
-                _to
-            );
-        } else {
-            (
-                ,
-                uint256 maintanierFee,
-                uint256 platformFee,
-                uint256 amountToSwap
-            ) = percentageCalculation(_amountIn);
-
-            IERC20(_tokenIn).transferFrom(
-                msg.sender,
-                maintanierAddress,
-                maintanierFee
-            );
-            IERC20(_tokenIn).transferFrom(
-                msg.sender,
-                platformAddress,
-                platformFee
-            );
-
-            IUniswapV2Router02(UNISWAP_V2_ROUTER).swapExactTokensForTokens(
-                amountToSwap,
-                _amountOutMin,
-                path,
-                _to,
-                block.timestamp
-            );
-
-            emit TokensSwapped(
-                _tokenIn,
-                _tokenOut,
-                _amountIn,
-                amountToSwap,
-                _to
-            );
-        }
     }
 
     /**
@@ -327,5 +244,9 @@ contract BuyContract is OwnableUpgradeable {
         address _account
     ) external onlyOwner ZeroAddress(_account) {
         maintanierAddress = _account;
+    }
+
+    receive() external payable {
+        // React to receiving ether
     }
 }

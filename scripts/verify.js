@@ -42,7 +42,7 @@ async function main() {
   //   });
   await Hre.run("verify:verify", {
     //address of the Root tunnel
-    address: "0x5DC1665F718945df424A7EBE98edBCad36e1150e",
+    address: "0xA1F49b3e2E0A70859E8D0948E4995a66D1D39f07",
 
     //Pass arguments as string and comma seprated values
     constructorArguments: [],
@@ -52,7 +52,7 @@ async function main() {
 
   await Hre.run("verify:verify", {
     //Deployed contract OwnedUpgradeabilityProxy address
-    address: "0xe0dDB17101E5a1D47bc6Ac895832F43c5ac3EEEf",
+    address: "0x76B7A09bB9cE8dc42c835878AE5AfED5176F6888",
     //Path of your main contract.
     contract:
       "contracts/upgradability/OwnedUpgradeabilityProxy.sol:OwnedUpgradeabilityProxy",
