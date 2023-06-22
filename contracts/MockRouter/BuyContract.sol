@@ -80,6 +80,7 @@ contract BuyContract is OwnableUpgradeable {
         uint256 _amountOutMin,
         address _to
     ) external payable ZeroAddress(_to) ZeroAmount(_amountOutMin) {
+        require(msg.value > 0, "BC: Invalid ETH amount");
         // Construct the token swap path
         address[] memory path;
 
