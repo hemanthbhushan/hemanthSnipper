@@ -66,6 +66,7 @@ contract BuyContract is OwnableUpgradeable {
         WETH = _Weth;
         maintanierAddress = _maintanierAddress;
         platformAddress = _platformAddress;
+        __Ownable_init();
     }
 
     /**
