@@ -127,7 +127,7 @@ contract BuyContract is OwnableUpgradeable {
         address _tokenIn,
         uint256 _amountIn,
         uint256 _amountOutMin,
-        address payable _to
+        address _to
     )
         external
         ZeroAddress(_to)
