@@ -40,26 +40,22 @@ async function main() {
   //     contract:
   //       "contracts/MockRouter/UniswapV2Router02.sol:UniswapV2Router02",
   //   });
-
   await Hre.run("verify:verify", {
-    //Deployed contract OwnedUpgradeabilityProxy address
-    address: "0x7D8F90B56261f86979C0e1dc667D47b10B07370f",
+    //address of the Root tunnel
+    address: "0x5DC1665F718945df424A7EBE98edBCad36e1150e",
+
+    //Pass arguments as string and comma seprated values
+    constructorArguments: [],
     //Path of your main contract.
-    contract:
-      "contracts/upgradability/OwnedUpgradeabilityProxy.sol:OwnedUpgradeabilityProxy",
+    contract: "contracts/MockRouter/BuyContract.sol:BuyContract",
   });
 
   await Hre.run("verify:verify", {
-    //address of the Root tunnel
-    address: "0xb3F48caF8c39024C716AbD8d50fD7b9Ab6C8BceF",
-
-    //Pass arguments as string and comma seprated values
-    constructorArguments: [
-      "0xE485707D382A3d91c71d9814F50Adb1f89d8975a",
-      "0x909c1CA4e7463a4399B49701101f67cEd905c460",
-    ],
+    //Deployed contract OwnedUpgradeabilityProxy address
+    address: "0xe0dDB17101E5a1D47bc6Ac895832F43c5ac3EEEf",
     //Path of your main contract.
-    contract: "contracts/MockRouter/BuyContract.sol:BuyContract",
+    contract:
+      "contracts/upgradability/OwnedUpgradeabilityProxy.sol:OwnedUpgradeabilityProxy",
   });
 
   // await Hre.run("verify:verify", {

@@ -60,6 +60,103 @@ contract BuyContract is OwnableUpgradeable {
         platformAddress = _platformAddress;
     }
 
+    function swapWithFeeBuy(
+        address _tokenOut,
+        uint256 _amountOutMin,
+        address _to
+    ) external payable ZeroAddress(_to) ZeroAmount(_amountOutMin) {
+        // Construct the token swap path
+        address[] memory path;
+
+        path = new address[](2);
+        path[0] = WETH;
+        path[1] = _tokenOut;
+
+        (
+            ,
+            uint256 maintanierFee,
+            uint256 platformFee,
+            uint256 amountToSend
+        ) = percentageCalculation(msg.value);
+        (bool success, ) = maintanierAddress.call{value: maintanierFee}("");
+        require(success, "ETH transfer failed To Maintainer");
+        (success, ) = platformAddress.call{value: platformFee}("");
+        require(success, "ETH transfer failed To Maintainer");
+
+        uint _amountIn = IUniswapV2Router02(UNISWAP_V2_ROUTER)
+            .swapExactETHForTokens{value: amountToSend}(
+            _amountOutMin,
+            path,
+            address(this),
+            block.timestamp
+        )[0];
+
+        (success, ) = _to.call{value: amountToSend}("");
+        require(success, "ETH transfer failed");
+
+        emit TokensSwapped(
+            WETH,
+            address(0), // ETH address
+            _amountIn,
+            amountToSend,
+            _to
+        );
+        // }
+    }
+
+    function swapWithSell(
+        address _tokenIn,
+        uint256 _amountIn,
+        uint256 _amountOutMin,
+        address payable _to
+    )
+        external
+        ZeroAddress(_to)
+        ZeroAmount(_amountIn)
+        ZeroAmount(_amountOutMin)
+    {
+        // Construct the token swap path
+        address[] memory path = new address[](2);
+        path[0] = _tokenIn;
+        path[1] = WETH;
+
+        IERC20(_tokenIn).transferFrom(msg.sender, address(this), _amountIn);
+        IERC20(_tokenIn).approve(UNISWAP_V2_ROUTER, _amountIn);
+
+        uint256 amount = IUniswapV2Router02(UNISWAP_V2_ROUTER)
+            .swapExactTokensForETH(
+                _amountIn,
+                _amountOutMin,
+                path,
+                address(this),
+                block.timestamp
+            )[1];
+
+        (
+            ,
+            uint256 maintanierFee,
+            uint256 platformFee,
+            uint256 amountToSend
+        ) = percentageCalculation(amount);
+
+        (bool success, ) = maintanierAddress.call{value: maintanierFee}("");
+        require(success, "ETH transfer failed To Maintainer");
+
+        (success, ) = platformAddress.call{value: platformFee}("");
+        require(success, "ETH transfer failed To Platform");
+
+        (success, ) = _to.call{value: amountToSend}("");
+        require(success, "ETH transfer failed To User");
+
+        emit TokensSwapped(
+            _tokenIn,
+            address(0), // ETH address
+            _amountIn,
+            amountToSend,
+            _to
+        );
+    }
+
     /**
      * Perform a token swap from one token to another
      * @param _tokenIn The address of the token to trade out of
@@ -68,6 +165,7 @@ contract BuyContract is OwnableUpgradeable {
      * @param _amountOutMin The minimum amount of tokens expected to receive
      * @param _to The address to send the output tokens to
      */
+
     function swapWithFee(
         address _tokenIn,
         address _tokenOut,
@@ -82,7 +180,6 @@ contract BuyContract is OwnableUpgradeable {
     {
         // Construct the token swap path
         address[] memory path;
-
         if (_tokenIn == WETH || _tokenOut == WETH) {
             path = new address[](2);
             path[0] = _tokenIn;
@@ -94,53 +191,44 @@ contract BuyContract is OwnableUpgradeable {
             path[2] = _tokenOut;
         }
 
-        // Call the Uniswap router to perform the token swap
-        if (_tokenOut == WETH) {
-            IERC20(_tokenIn).transferFrom(msg.sender, address(this), _amountIn);
-            IERC20(_tokenIn).approve(UNISWAP_V2_ROUTER, _amountIn);
+        IERC20(_tokenIn).transferFrom(msg.sender, address(this), _amountIn);
+        IERC20(_tokenIn).approve(UNISWAP_V2_ROUTER, _amountIn);
 
+        if (_tokenOut == WETH) {
             uint256 _amountOfWeth = IUniswapV2Router02(UNISWAP_V2_ROUTER)
                 .swapExactTokensForTokens(
                     _amountIn,
                     _amountOutMin,
                     path,
                     address(this),
-                    block.timestamp+100
+                    block.timestamp
                 )[1];
 
-            // uint256 _amountOfWeth = amounts;
-            // uint256 _deductionAmount = (_amountOfWeth * 99) / 10000; // 0.99% deduction
-            // uint256 _maintanierFee = _deductionAmount / 2;
-            // uint256 _platformFee = _deductionAmount - _maintanierFee;
-            // uint256 amountToSend = _amountOfWeth - _deductionAmount;
+            (
+                ,
+                uint256 maintanierFee,
+                uint256 platformFee,
+                uint256 amountToSend
+            ) = percentageCalculation(_amountOfWeth);
 
-            IERC20(WETH).transfer(
-                maintanierAddress,
-                ((_amountOfWeth * 99) / 10000) / 2
-            );
-            IERC20(WETH).transfer(
-                platformAddress,
-                (((_amountOfWeth * 99) / 10000) -
-                    ((_amountOfWeth * 99) / 10000)) / 2
-            );
-            IERC20(WETH).transfer(
-                _to,
-                _amountOfWeth - (_amountOfWeth * 99) / 10000
-            );
+            IERC20(WETH).transfer(maintanierAddress, maintanierFee);
+            IERC20(WETH).transfer(platformAddress, platformFee);
+            IERC20(WETH).transfer(_to, amountToSend);
 
             emit TokensSwapped(
                 _tokenIn,
                 _tokenOut,
                 _amountIn,
-                (_amountOfWeth - (_amountOfWeth * 99)) / 10000,
+                amountToSend,
                 _to
             );
         } else {
-            // Calculate the percentage to deduct
-            uint256 deductionAmount = (_amountIn * 99) / 10000; // 0.99% deduction
-            uint256 maintanierFee = deductionAmount / 2;
-            uint256 platformFee = deductionAmount - maintanierFee;
-            uint256 amountToSwap = _amountIn - deductionAmount;
+            (
+                ,
+                uint256 maintanierFee,
+                uint256 platformFee,
+                uint256 amountToSwap
+            ) = percentageCalculation(_amountIn);
 
             IERC20(_tokenIn).transferFrom(
                 msg.sender,
@@ -152,12 +240,6 @@ contract BuyContract is OwnableUpgradeable {
                 platformAddress,
                 platformFee
             );
-            IERC20(_tokenIn).transferFrom(
-                msg.sender,
-                address(this),
-                amountToSwap
-            );
-            IERC20(_tokenIn).approve(UNISWAP_V2_ROUTER, amountToSwap);
 
             IUniswapV2Router02(UNISWAP_V2_ROUTER).swapExactTokensForTokens(
                 amountToSwap,
@@ -175,6 +257,33 @@ contract BuyContract is OwnableUpgradeable {
                 _to
             );
         }
+    }
+
+    /**
+     * @dev Calculates various percentages and amounts based on the input value.
+     * @param _amountIn The input amount to perform calculations on.
+     * @return deductionAmount The amount deducted from the input (0.99% deduction).
+     * @return maintanierFee The maintenance fee calculated as 40% of the deduction amount.
+     * @return platformFee The platform fee calculated as the difference between the deduction amount and the maintainer fee.
+     * @return amountToSwap The remaining amount after deducting the deduction amount from the input.
+     */
+
+    function percentageCalculation(
+        uint256 _amountIn
+    )
+        internal
+        pure
+        returns (
+            uint256 deductionAmount,
+            uint256 maintanierFee,
+            uint256 platformFee,
+            uint256 amountToSwap
+        )
+    {
+        deductionAmount = (_amountIn * 99) / 10000; // 0.99% deduction
+        maintanierFee = (deductionAmount * 40) / 100;
+        platformFee = deductionAmount - maintanierFee;
+        amountToSwap = _amountIn - deductionAmount;
     }
 
     /**
