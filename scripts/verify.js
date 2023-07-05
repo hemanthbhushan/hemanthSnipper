@@ -40,9 +40,21 @@ async function main() {
   //     contract:
   //       "contracts/MockRouter/UniswapV2Router02.sol:UniswapV2Router02",
   //   });
+
+  
   await Hre.run("verify:verify", {
     //address of the Root tunnel
-    address: "0xe1764E9c11241b54bD87cC0a858A105950C548eF",
+    address: "0x7e53E3C2A67457C82EAe98a420C24bedACB61231",
+
+    //Pass arguments as string and comma seprated values
+    constructorArguments: [],
+    //Path of your main contract.
+    contract: "contracts/MockRouter/test/tax_token.sol:tax_token",
+  });
+
+  await Hre.run("verify:verify", {
+    //address of the Root tunnel
+    address: "0x7c4e64d4a215319cC172908E14d787972d552823",
 
     //Pass arguments as string and comma seprated values
     constructorArguments: [],
