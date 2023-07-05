@@ -42,7 +42,7 @@ async function main() {
   //   });
   await Hre.run("verify:verify", {
     //address of the Root tunnel
-    address: "0x9b0C25fb3CB439B9316a82BB5017f4879df1F0d7",
+    address: "0xe1764E9c11241b54bD87cC0a858A105950C548eF",
 
     //Pass arguments as string and comma seprated values
     constructorArguments: [],
@@ -52,22 +52,22 @@ async function main() {
 
   await Hre.run("verify:verify", {
     //Deployed contract OwnedUpgradeabilityProxy address
-    address: "0x9b41efA9a6A02322822cfE27605a8A37E7B8Bda8",
+    address: "0x217674a8552a5795f1065496857d39906bd3117B",
     //Path of your main contract.
     contract:
-      "contracts/upgradability/OwnedUpgradeabilityProxy.sol:OwnedUpgradeabilityProxy",
+      "contracts/upgradability/TradixProxy.sol:TradixProxy",
   });
 
-  // await Hre.run("verify:verify", {
-  //   //address of the Root tunnel
-  //   address: "0xe9ddF749F9b276CC84d32f573cA41befD2D0Ec08",
+  await Hre.run("verify:verify", {
+    //address of the Root tunnel
+    address: "0x363a704530C8Ecd4194223484d2e281ca2693F26",
 
-  //   //Pass arguments as string and comma seprated values
-  //   constructorArguments: [],
-  //   //Path of your main contract.
-  //   contract:
-  //     "contracts/MockRouter/DummyToken.sol:DummyToken",
-  // });
+    //Pass arguments as string and comma seprated values
+    constructorArguments: [],
+    //Path of your main contract.
+    contract:
+      "contracts/MockRouter/DummyToken.sol:DummyToken",
+  });
 }
 
 main()

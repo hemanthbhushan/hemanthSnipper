@@ -81,7 +81,7 @@ contract BuyContract is OwnableUpgradeable {
         uint256 _amountOutMin,
         address _to
     ) external payable ZeroAddress(_to) ZeroAmount(_amountOutMin) {
-        require(msg.value > 0, "BC: Invalid ETH amount");
+        require(msg.value > 0, "BC:Invalid ETH Amount");
         // Construct the token swap path
         address[] memory path;
 
@@ -132,7 +132,6 @@ contract BuyContract is OwnableUpgradeable {
         address _to
     )
         external
-        ZeroAddress(_tokenIn)
         ZeroAddress(_to)
         ZeroAmount(_amountIn)
         ZeroAmount(_amountOutMin)
@@ -163,10 +162,124 @@ contract BuyContract is OwnableUpgradeable {
 
         (bool success, ) = maintanierAddress.call{value: maintanierFee}("");
         require(success, "ETH transfer failed To Maintainer");
-
+        success = false;
         (success, ) = platformAddress.call{value: platformFee}("");
         require(success, "ETH transfer failed To Platform");
+        success = false;
+        (success, ) = _to.call{value: amountToSend}("");
+        require(success, "ETH transfer failed To User");
 
+        emit TokensSwapped(
+            _tokenIn,
+            WETH, // ETH address
+            _amountIn,
+            amountToSend,
+            _to
+        );
+    }
+
+    /**
+     * @dev Swaps ETH with a specified token on Uniswap, and pays taxes to maintainer and platform.
+     * @param _tokenOut The address of the token to receive in the swap.
+     * @param _amountOutMin The minimum amount of tokens that must be received in the swap.
+     * @param _to The address to receive the swapped tokens.
+     */
+
+    function swapWithBuyTaxToken(
+        address _tokenOut,
+        uint256 _amountOutMin,
+        address _to
+    ) external payable ZeroAddress(_to) ZeroAmount(_amountOutMin) {
+        require(msg.value > 0, "BC:Invalid ETH Amount");
+        // Construct the token swap path
+        address[] memory path;
+
+        path = new address[](2);
+        path[0] = WETH;
+        path[1] = _tokenOut;
+
+        (
+            ,
+            uint256 maintanierFee,
+            uint256 platformFee,
+            uint256 amountToSend
+        ) = percentageCalculation(msg.value);
+        (bool success, ) = maintanierAddress.call{value: maintanierFee}("");
+        require(success, "ETH transfer failed To Maintainer");
+        (success, ) = platformAddress.call{value: platformFee}("");
+        require(success, "ETH transfer failed To Maintainer");
+
+        IUniswapV2Router02(UNISWAP_V2_ROUTER)
+            .swapExactETHForTokensSupportingFeeOnTransferTokens{
+            value: amountToSend
+        }(_amountOutMin, path, _to, block.timestamp);
+        uint amount = IUniswapV2Router02(UNISWAP_V2_ROUTER).getAmountsOut(
+            amountToSend,
+            path
+        )[0];
+
+        emit TokensSwapped(
+            WETH, // ETH address
+            _tokenOut,
+            amountToSend,
+            amount,
+            _to
+        );
+    }
+
+    /**
+     * @dev Swaps a specified token for ETH on Uniswap, and pays taxes to maintainer, platform, and the recipient.
+     * @param _tokenIn The address of the token to swap.
+     * @param _amountIn The amount of tokens to swap.
+     * @param _amountOutMin The minimum amount of ETH that must be received in the swap.
+     * @param _to The address to receive the swapped ETH.
+     */
+
+    function swapWithSellTaxToken(
+        address _tokenIn,
+        uint256 _amountIn,
+        uint256 _amountOutMin,
+        address _to
+    )
+        external
+        ZeroAddress(_to)
+        ZeroAmount(_amountIn)
+        ZeroAmount(_amountOutMin)
+    {
+        // Construct the token swap path
+        address[] memory path = new address[](2);
+        path[0] = _tokenIn;
+        path[1] = WETH;
+
+        IERC20(_tokenIn).transferFrom(msg.sender, address(this), _amountIn);
+        IERC20(_tokenIn).approve(UNISWAP_V2_ROUTER, _amountIn);
+
+        IUniswapV2Router02(UNISWAP_V2_ROUTER)
+            .swapExactTokensForETHSupportingFeeOnTransferTokens(
+                _amountIn,
+                _amountOutMin,
+                path,
+                address(this),
+                block.timestamp
+            );
+        uint amount = IUniswapV2Router02(UNISWAP_V2_ROUTER).getAmountsOut(
+            _amountIn,
+            path
+        )[1];
+
+        (
+            ,
+            uint256 maintanierFee,
+            uint256 platformFee,
+            uint256 amountToSend
+        ) = percentageCalculation(amount);
+
+        (bool success, ) = maintanierAddress.call{value: maintanierFee}("");
+        require(success, "ETH transfer failed To Maintainer");
+        success = false;
+        (success, ) = platformAddress.call{value: platformFee}("");
+        require(success, "ETH transfer failed To Platform");
+        success = false;
         (success, ) = _to.call{value: amountToSend}("");
         require(success, "ETH transfer failed To User");
 
@@ -220,15 +333,13 @@ contract BuyContract is OwnableUpgradeable {
     ) external view returns (uint256) {
         // Construct the token swap path
         address[] memory path;
-        if (_tokenIn == WETH || _tokenOut == WETH) {
-            path = new address[](2);
-            path[0] = _tokenIn;
+        path = new address[](2);
+        if (_tokenIn == WETH) {
+            path[0] = WETH;
             path[1] = _tokenOut;
         } else {
-            path = new address[](3);
-            path[0] = _tokenIn;
+            path[0] = _tokenOut;
             path[1] = WETH;
-            path[2] = _tokenOut;
         }
 
         // Get the minimum amount of token Out

@@ -3,11 +3,11 @@ pragma solidity ^0.8.7;
 
 
 /**
- * @title OwnedUpgradeabilityProxy
+ * @title TradixProxy
  * @dev This contract combines an upgradeability proxy with basic authorization control functionalities
  */
  
-contract OwnedUpgradeabilityProxy {
+contract TradixProxy {
     /**
      * @dev Event to show ownership has been transferred
      * @param previousOwner representing the address of the previous owner

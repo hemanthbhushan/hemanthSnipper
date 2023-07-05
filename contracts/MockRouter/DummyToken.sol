@@ -5,11 +5,9 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract DummyToken is ERC20 {
-    constructor() ERC20("DummyToken", "DT") {
-        _mint(msg.sender, 1000000000000 * 10 ** decimals());
-    }
+    constructor() ERC20("Trade", "T") {}
 
-    function mint(address to, uint256 amount) public  {
+    function mint(address to, uint256 amount) public {
         _mint(to, amount);
     }
 }

@@ -23,10 +23,10 @@ async function main() {
   // const Factory = await ethers.getContractFactory("UniswapV2Factory");
   // const Router = await ethers.getContractFactory("UniswapV2Router02");
   const BuyContract = await ethers.getContractFactory("BuyContract");
-  // const DummyToken = await ethers.getContractFactory("DummyToken");
+  const DummyToken = await ethers.getContractFactory("DummyToken");
   // const CallHash = await ethers.getContractFactory("CalHash");
   const OwnedUpgradeabilityProxy = await ethers.getContractFactory(
-    "OwnedUpgradeabilityProxy"
+    "TradixProxy"
   );
   // const Impl = await impl.deploy();
   // console.log("Implementation: ",Impl.address);
@@ -52,26 +52,27 @@ async function main() {
   // await router.deployed();
   // console.log("Router: ", router.address);
 
-  let buyContract = await BuyContract.deploy();
-  await sleep(6000);
-  buyContractAddress = await buyContract.getAddress();
-  console.log("BuyContract: ", buyContractAddress);
-
-  let proxy = await OwnedUpgradeabilityProxy.deploy();
-  await sleep(6000);
-  proxyAddress = await proxy.getAddress();
-  console.log("proxy address", proxyAddress);
-
-  console.log("uprade before");
-  await proxy.upgradeTo(buyContractAddress);
-  await sleep(6000);
-
-  let proxy1 = BuyContract.attach(proxyAddress);
-  console.log("proxy1", await proxy1.getAddress());
-
-  // dummyToken = await DummyToken.deploy();
-  // console.log("DummyTOken: ", dummyToken.address);
+  // let buyContract = await BuyContract.deploy();
   // await sleep(6000);
+  // buyContractAddress = await buyContract.getAddress();
+  // console.log("BuyContract: ", buyContractAddress);
+
+  // let proxy = await OwnedUpgradeabilityProxy.deploy();
+  // await sleep(6000);
+  // proxyAddress = await proxy.getAddress();
+  // console.log("proxy address", proxyAddress);
+
+  // console.log("uprade before");
+  // await proxy.upgradeTo(buyContractAddress);
+  // await sleep(6000);
+
+  // let proxy1 = BuyContract.attach(proxyAddress);
+  // console.log("proxy1", await proxy1.getAddress());
+
+  dummyToken = await DummyToken.deploy();
+  await sleep(6000);
+  console.log("DummyTOken: ", await dummyToken.getAddress());
+  
 
   // calHash = await CallHash.deploy();
   // console.log("callHash", await calHash.getInitHash());
