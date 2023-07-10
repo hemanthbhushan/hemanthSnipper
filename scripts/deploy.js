@@ -18,13 +18,8 @@ async function main() {
   // let impl = await hre.ethers.getContractFactory("MEMEKONG");
   // let proxy = await hre.ethers.getContractFactory("MEMEKongProxy");
 
-  const Weth9 = await ethers.getContractFactory("WETH9");
-  const Pair = await ethers.getContractFactory("UniswapV2Pair");
-  const Factory = await ethers.getContractFactory("UniswapV2Factory");
-  const Router = await ethers.getContractFactory("UniswapV2Router02");
   const BuyContract = await ethers.getContractFactory("BuyContract");
-  const DummyToken = await ethers.getContractFactory("DummyToken");
-  const CallHash = await ethers.getContractFactory("CalHash");
+
   const OwnedUpgradeabilityProxy = await ethers.getContractFactory(
     "OwnedUpgradeabilityProxy"
   );
@@ -54,18 +49,18 @@ async function main() {
 
   let buyContract = await BuyContract.deploy();
   await sleep(6000);
-  console.log("BuyContract: ", buyContract.address);
+  console.log("BuyContract: ",await  buyContract.getAddress());
 
   let proxy = await OwnedUpgradeabilityProxy.deploy();
   await sleep(6000);
-  console.log("proxy address", proxy.address);
+  console.log("proxy address",await proxy.getAddress());
 
   console.log("uprade before");
-  await proxy.upgradeTo(buyContract.address);
+  await proxy.upgradeTo(await buyContract.getAddress());
   await sleep(6000);
 
-  let proxy1 = BuyContract.attach(proxy.address);
-  console.log("proxy1", proxy1.address);
+  let proxy1 = await BuyContract.attach(proxy.target);
+  console.log("proxy1",await proxy1.getAddress());
 
   // dummyToken = await DummyToken.deploy();
   // console.log("DummyTOken: ", dummyToken.address);
@@ -79,23 +74,6 @@ async function main() {
 
   sleep(6000);
 
-  // await dummyToken.approve(router.address, expandTo18Decimals(100000));
-  // await sleep(6000);
-  // await weth9.approve(router.address, expandTo18Decimals(1));
-  // await sleep(6000);
-  // await router
-  //   .connect()
-  //   .addLiquidity(
-  //     weth9.address,
-  //     dummyToken.address,
-  //     expandTo18Decimals(1),
-  //     expandTo18Decimals(100000),
-  //     expandTo18Decimals(1),
-  //     expandTo18Decimals(1),
-  //     "0x14ef97a0a27EeDDFd9A1499FD7ef99b52F8C7452",
-  //     1686307329
-  //   );
-  // await sleep(6000);
   console.log("COmpleted ");
 }
 

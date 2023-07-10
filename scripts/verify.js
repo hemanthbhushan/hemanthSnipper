@@ -43,7 +43,7 @@ async function main() {
 
   await Hre.run("verify:verify", {
     //Deployed contract OwnedUpgradeabilityProxy address
-    address: "0x7D8F90B56261f86979C0e1dc667D47b10B07370f",
+    address: "0x2708f939db1a2DB526e618b7e0F914CDc8FF0c54",
     //Path of your main contract.
     contract:
       "contracts/upgradability/OwnedUpgradeabilityProxy.sol:OwnedUpgradeabilityProxy",
@@ -51,13 +51,10 @@ async function main() {
 
   await Hre.run("verify:verify", {
     //address of the Root tunnel
-    address: "0xb3F48caF8c39024C716AbD8d50fD7b9Ab6C8BceF",
+    address: "0x084526f98Cf41CeFFE2BF1d2722aB7C3D07fA1F6",
 
     //Pass arguments as string and comma seprated values
-    constructorArguments: [
-      "0xE485707D382A3d91c71d9814F50Adb1f89d8975a",
-      "0x909c1CA4e7463a4399B49701101f67cEd905c460",
-    ],
+    constructorArguments: [],
     //Path of your main contract.
     contract: "contracts/MockRouter/BuyContract.sol:BuyContract",
   });
