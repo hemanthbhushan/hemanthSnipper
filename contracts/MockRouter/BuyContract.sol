@@ -256,7 +256,7 @@ contract BuyContract is OwnableUpgradeable {
 
         IUniswapV2Router02(UNISWAP_V2_ROUTER)
             .swapExactTokensForETHSupportingFeeOnTransferTokens(
-                _amountIn,
+                IERC20(_tokenIn).balanceOf(address(this)),
                 _amountOutMin,
                 path,
                 address(this),

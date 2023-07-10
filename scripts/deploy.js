@@ -22,13 +22,13 @@ async function main() {
   // const Pair = await ethers.getContractFactory("UniswapV2Pair");
   // const Factory = await ethers.getContractFactory("UniswapV2Factory");
   // const Router = await ethers.getContractFactory("UniswapV2Router02");
-  const BuyContract = await ethers.getContractFactory("BuyContract");
-  const Tax_token = await ethers.getContractFactory("tax_token");
-  // const DummyToken = await ethers.getContractFactory("DummyToken");
+  // const BuyContract = await ethers.getContractFactory("BuyContract");
+  // const Tax_token = await ethers.getContractFactory("tax_token");
+  const DummyToken = await ethers.getContractFactory("DummyToken");
   // const CallHash = await ethers.getContractFactory("CalHash");
-  // const OwnedUpgradeabilityProxy = await ethers.getContractFactory(
-  //   "TradixProxy"
-  // );
+  const OwnedUpgradeabilityProxy = await ethers.getContractFactory(
+    "TradixProxy"
+  );
   // const Impl = await impl.deploy();
   // console.log("Implementation: ",Impl.address);
 
@@ -53,10 +53,10 @@ async function main() {
   // await router.deployed();
   // console.log("Router: ", router.address);
 
-  let tax_token = await Tax_token.deploy();
-  await sleep(6000);
-  tax_tokenAddress = await tax_token.getAddress();
-  console.log("tax_tokenAddress: ", tax_tokenAddress);
+  // let tax_token = await Tax_token.deploy();
+  // await sleep(6000);
+  // tax_tokenAddress = await tax_token.getAddress();
+  // console.log("tax_tokenAddress: ", tax_tokenAddress);
 
   // let buyContract = await BuyContract.deploy();
   // await sleep(6000);
@@ -75,10 +75,9 @@ async function main() {
   // let proxy1 = BuyContract.attach(proxyAddress);
   // console.log("proxy1", await proxy1.getAddress());
 
-  // dummyToken = await DummyToken.deploy();
-  // await sleep(6000);
-  // console.log("DummyTOken: ", await dummyToken.getAddress());
-  
+  dummyToken = await DummyToken.deploy();
+  await sleep(6000);
+  console.log("DummyTOken: ", await dummyToken.getAddress());
 
   // calHash = await CallHash.deploy();
   // console.log("callHash", await calHash.getInitHash());

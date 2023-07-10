@@ -44,7 +44,7 @@ async function main() {
   
   await Hre.run("verify:verify", {
     //address of the Root tunnel
-    address: "0x7e53E3C2A67457C82EAe98a420C24bedACB61231",
+    address: "0x2cCd19831E368224424637a78599C4Faeae65142",
 
     //Pass arguments as string and comma seprated values
     constructorArguments: [],
@@ -54,7 +54,7 @@ async function main() {
 
   await Hre.run("verify:verify", {
     //address of the Root tunnel
-    address: "0x7c4e64d4a215319cC172908E14d787972d552823",
+    address: "0x99555339E2Fa61c91dd73228f04bDdB6D1E60525",
 
     //Pass arguments as string and comma seprated values
     constructorArguments: [],
@@ -64,7 +64,7 @@ async function main() {
 
   await Hre.run("verify:verify", {
     //Deployed contract OwnedUpgradeabilityProxy address
-    address: "0x217674a8552a5795f1065496857d39906bd3117B",
+    address: "0x3ed78d46066fa696349A7F989b2eb4A727D41Edf",
     //Path of your main contract.
     contract:
       "contracts/upgradability/TradixProxy.sol:TradixProxy",
@@ -72,7 +72,7 @@ async function main() {
 
   await Hre.run("verify:verify", {
     //address of the Root tunnel
-    address: "0x363a704530C8Ecd4194223484d2e281ca2693F26",
+    address: "0xB3CB5821d2c5e2A7791bF2a6F9119E53f8e888eB",
 
     //Pass arguments as string and comma seprated values
     constructorArguments: [],
