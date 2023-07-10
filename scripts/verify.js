@@ -54,7 +54,7 @@ async function main() {
 
   await Hre.run("verify:verify", {
     //address of the Root tunnel
-    address: "0x99555339E2Fa61c91dd73228f04bDdB6D1E60525",
+    address: "0x47E68883215f37f75Ba58FB133780Db16fB96533",
 
     //Pass arguments as string and comma seprated values
     constructorArguments: [],
