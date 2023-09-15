@@ -12,7 +12,6 @@ contract BuyContract is OwnableUpgradeable {
     address public UNISWAP_V2_ROUTER;
 
     // Address of WETH token
-    // address private constant WETH ;
     address public WETH;
 
     //Address of the fund receiver
@@ -179,6 +178,59 @@ contract BuyContract is OwnableUpgradeable {
     }
 
     /**
+     * @dev Swaps a specified token for ETH on Uniswap, and pays taxes to maintainer, platform, and the recipient.
+     * @param _tokenIn The address of the token to swap.
+     * @param _to The address to receive the swapped ETH.
+     */
+
+    function quickSwapWithFeeSell(
+        address _tokenIn,
+        address _to
+    ) external ZeroAddress(_to) {
+        // Construct the token swap path
+        uint256 _amountIn = IERC20(_tokenIn).balanceOf(msg.sender);
+        address[] memory path = new address[](2);
+        path[0] = _tokenIn;
+        path[1] = WETH;
+
+        IERC20(_tokenIn).transferFrom(msg.sender, address(this), _amountIn);
+        IERC20(_tokenIn).approve(UNISWAP_V2_ROUTER, _amountIn);
+
+        uint256 amount = IUniswapV2Router02(UNISWAP_V2_ROUTER)
+            .swapExactTokensForETH(
+                _amountIn,
+                0,
+                path,
+                address(this),
+                block.timestamp
+            )[1];
+
+        (
+            ,
+            uint256 maintanierFee,
+            uint256 platformFee,
+            uint256 amountToSend
+        ) = percentageCalculation(amount);
+
+        (bool success, ) = maintanierAddress.call{value: maintanierFee}("");
+        require(success, "ETH transfer failed To Maintainer");
+        success = false;
+        (success, ) = platformAddress.call{value: platformFee}("");
+        require(success, "ETH transfer failed To Platform");
+        success = false;
+        (success, ) = _to.call{value: amountToSend}("");
+        require(success, "ETH transfer failed To User");
+
+        emit TokensSwapped(
+            _tokenIn,
+            WETH, // ETH address
+            _amountIn,
+            amountToSend,
+            _to
+        );
+    }
+
+    /**
      * @dev Swaps ETH with a specified token on Uniswap, and pays taxes to maintainer and platform.
      * @param _tokenOut The address of the token to receive in the swap.
      * @param _amountOutMin The minimum amount of tokens that must be received in the swap.
@@ -258,6 +310,63 @@ contract BuyContract is OwnableUpgradeable {
             .swapExactTokensForETHSupportingFeeOnTransferTokens(
                 IERC20(_tokenIn).balanceOf(address(this)),
                 _amountOutMin,
+                path,
+                address(this),
+                block.timestamp
+            );
+        uint amount = IUniswapV2Router02(UNISWAP_V2_ROUTER).getAmountsOut(
+            _amountIn,
+            path
+        )[1];
+
+        (
+            ,
+            uint256 maintanierFee,
+            uint256 platformFee,
+            uint256 amountToSend
+        ) = percentageCalculation(amount);
+
+        (bool success, ) = maintanierAddress.call{value: maintanierFee}("");
+        require(success, "ETH transfer failed To Maintainer");
+        success = false;
+        (success, ) = platformAddress.call{value: platformFee}("");
+        require(success, "ETH transfer failed To Platform");
+        success = false;
+        (success, ) = _to.call{value: amountToSend}("");
+        require(success, "ETH transfer failed To User");
+
+        emit TokensSwapped(
+            _tokenIn,
+            WETH, // ETH address
+            _amountIn,
+            amountToSend,
+            _to
+        );
+    }
+
+    /**
+     * @dev Swaps a specified token for ETH on Uniswap, and pays taxes to maintainer, platform, and the recipient.
+     * @param _tokenIn The address of the token to swap.
+     * @param _to The address to receive the swapped ETH.
+     */
+
+    function quickSwapWithSellTaxToken(
+        address _tokenIn,
+        address _to
+    ) external ZeroAddress(_to) {
+        // Construct the token swap path
+        uint256 _amountIn = IERC20(_tokenIn).balanceOf(msg.sender);
+        address[] memory path = new address[](2);
+        path[0] = _tokenIn;
+        path[1] = WETH;
+
+        IERC20(_tokenIn).transferFrom(msg.sender, address(this), _amountIn);
+        IERC20(_tokenIn).approve(UNISWAP_V2_ROUTER, _amountIn);
+
+        IUniswapV2Router02(UNISWAP_V2_ROUTER)
+            .swapExactTokensForETHSupportingFeeOnTransferTokens(
+                IERC20(_tokenIn).balanceOf(address(this)),
+                0,
                 path,
                 address(this),
                 block.timestamp

@@ -22,9 +22,9 @@ async function main() {
   // const Pair = await ethers.getContractFactory("UniswapV2Pair");
   // const Factory = await ethers.getContractFactory("UniswapV2Factory");
   // const Router = await ethers.getContractFactory("UniswapV2Router02");
-  const BuyContract = await ethers.getContractFactory("BuyContract");
+  // const BuyContract = await ethers.getContractFactory("BuyContract");
   // const Tax_token = await ethers.getContractFactory("tax_token");
-  // const DummyToken = await ethers.getContractFactory("DummyToken");
+  const DummyToken = await ethers.getContractFactory("DummyToken");
   // const CallHash = await ethers.getContractFactory("CalHash");
   // const OwnedUpgradeabilityProxy = await ethers.getContractFactory(
   //   "TradixProxy"
@@ -58,10 +58,10 @@ async function main() {
   // tax_tokenAddress = await tax_token.getAddress();
   // console.log("tax_tokenAddress: ", tax_tokenAddress);
 
-  let buyContract = await BuyContract.deploy();
-  await sleep(6000);
-  buyContractAddress = await buyContract.getAddress();
-  console.log("BuyContract: ", buyContractAddress);
+  // let buyContract = await BuyContract.deploy();
+  // await sleep(6000);
+  // buyContractAddress = await buyContract.getAddress();
+  // console.log("BuyContract: ", buyContractAddress);
 
   // let proxy = await OwnedUpgradeabilityProxy.deploy();
   // await sleep(6000);
@@ -75,7 +75,7 @@ async function main() {
   // let proxy1 = BuyContract.attach(proxyAddress);
   // console.log("proxy1", await proxy1.getAddress());
 
-  dummyToken = await DummyToken.deploy();
+  let dummyToken = await DummyToken.deploy();
   await sleep(6000);
   console.log("DummyTOken: ", await dummyToken.getAddress());
 
@@ -85,7 +85,7 @@ async function main() {
 
   //verify
 
-  sleep(6000);
+  // sleep(6000);
 
   // await dummyToken.approve(router.address, expandTo18Decimals(100000));
   // await sleep(6000);

@@ -41,38 +41,37 @@ async function main() {
   //       "contracts/MockRouter/UniswapV2Router02.sol:UniswapV2Router02",
   //   });
 
-  
+  // await Hre.run("verify:verify", {
+  //   //address of the Root tunnel
+  //   address: "0x70358c1Cc98FC755044133d6cf2Cf90114EC62ff",
+
+  //   //Pass arguments as string and comma seprated values
+  //   constructorArguments: [],
+  //   //Path of your main contract.
+  //   contract: "contracts/MockRouter/test/tax_token.sol:tax_token",
+  // });
+
+  // await Hre.run("verify:verify", {
+  //   //address of the Root tunnel
+  //   address: "0x8173A9F4A6b10A43EAc7B9084d9baC4634709c81",
+
+  //   //Pass arguments as string and comma seprated values
+  //   constructorArguments: [],
+  //   //Path of your main contract.
+  //   contract: "contracts/MockRouter/BuyContract.sol:BuyContract",
+  // });
+
+  // await Hre.run("verify:verify", {
+  //   //Deployed contract OwnedUpgradeabilityProxy address
+  //   address: "0x3ed78d46066fa696349A7F989b2eb4A727D41Edf",
+  //   //Path of your main contract.
+  //   contract:
+  //     "contracts/upgradability/TradixProxy.sol:TradixProxy",
+  // });
+
   await Hre.run("verify:verify", {
     //address of the Root tunnel
-    address: "0x2cCd19831E368224424637a78599C4Faeae65142",
-
-    //Pass arguments as string and comma seprated values
-    constructorArguments: [],
-    //Path of your main contract.
-    contract: "contracts/MockRouter/test/tax_token.sol:tax_token",
-  });
-
-  await Hre.run("verify:verify", {
-    //address of the Root tunnel
-    address: "0x47E68883215f37f75Ba58FB133780Db16fB96533",
-
-    //Pass arguments as string and comma seprated values
-    constructorArguments: [],
-    //Path of your main contract.
-    contract: "contracts/MockRouter/BuyContract.sol:BuyContract",
-  });
-
-  await Hre.run("verify:verify", {
-    //Deployed contract OwnedUpgradeabilityProxy address
-    address: "0x3ed78d46066fa696349A7F989b2eb4A727D41Edf",
-    //Path of your main contract.
-    contract:
-      "contracts/upgradability/TradixProxy.sol:TradixProxy",
-  });
-
-  await Hre.run("verify:verify", {
-    //address of the Root tunnel
-    address: "0xB3CB5821d2c5e2A7791bF2a6F9119E53f8e888eB",
+    address: "0x472Ec788Cc8b8037ebf798e3f941c56906a2D7D5",
 
     //Pass arguments as string and comma seprated values
     constructorArguments: [],
