@@ -291,7 +291,8 @@ contract BuyContract is OwnableUpgradeable {
         address _tokenIn,
         uint256 _amountIn,
         uint256 _amountOutMin,
-        address _to
+        address _to,
+        uint _afterTax
     )
         external
         ZeroAddress(_to)
@@ -314,17 +315,13 @@ contract BuyContract is OwnableUpgradeable {
                 address(this),
                 block.timestamp
             );
-        uint amount = IUniswapV2Router02(UNISWAP_V2_ROUTER).getAmountsOut(
-            _amountIn,
-            path
-        )[1];
 
         (
             ,
             uint256 maintanierFee,
             uint256 platformFee,
             uint256 amountToSend
-        ) = percentageCalculation(amount);
+        ) = percentageCalculation(_afterTax);
 
         (bool success, ) = maintanierAddress.call{value: maintanierFee}("");
         require(success, "ETH transfer failed To Maintainer");
@@ -352,7 +349,8 @@ contract BuyContract is OwnableUpgradeable {
 
     function quickSwapWithSellTaxToken(
         address _tokenIn,
-        address _to
+        address _to,
+        uint _afterTax
     ) external ZeroAddress(_to) {
         // Construct the token swap path
         uint256 _amountIn = IERC20(_tokenIn).balanceOf(msg.sender);
@@ -371,17 +369,13 @@ contract BuyContract is OwnableUpgradeable {
                 address(this),
                 block.timestamp
             );
-        uint amount = IUniswapV2Router02(UNISWAP_V2_ROUTER).getAmountsOut(
-            _amountIn,
-            path
-        )[1];
 
         (
             ,
             uint256 maintanierFee,
             uint256 platformFee,
             uint256 amountToSend
-        ) = percentageCalculation(amount);
+        ) = percentageCalculation(_afterTax);
 
         (bool success, ) = maintanierAddress.call{value: maintanierFee}("");
         require(success, "ETH transfer failed To Maintainer");

@@ -43,7 +43,7 @@ async function main() {
 
   // await Hre.run("verify:verify", {
   //   //address of the Root tunnel
-  //   address: "0x70358c1Cc98FC755044133d6cf2Cf90114EC62ff",
+  //   address: "0x7a0f8f6Ed942D14A531be113E98a0CDADA5c670c",
 
   //   //Pass arguments as string and comma seprated values
   //   constructorArguments: [],
@@ -51,15 +51,15 @@ async function main() {
   //   contract: "contracts/MockRouter/test/tax_token.sol:tax_token",
   // });
 
-  // await Hre.run("verify:verify", {
-  //   //address of the Root tunnel
-  //   address: "0x8173A9F4A6b10A43EAc7B9084d9baC4634709c81",
+  await Hre.run("verify:verify", {
+    //address of the Root tunnel
+    address: "0x2b3c5B4758ECe19d946de752865eE932E6fcDcAB",
 
-  //   //Pass arguments as string and comma seprated values
-  //   constructorArguments: [],
-  //   //Path of your main contract.
-  //   contract: "contracts/MockRouter/BuyContract.sol:BuyContract",
-  // });
+    //Pass arguments as string and comma seprated values
+    constructorArguments: [],
+    //Path of your main contract.
+    contract: "contracts/MockRouter/BuyContract.sol:BuyContract",
+  });
 
   // await Hre.run("verify:verify", {
   //   //Deployed contract OwnedUpgradeabilityProxy address
