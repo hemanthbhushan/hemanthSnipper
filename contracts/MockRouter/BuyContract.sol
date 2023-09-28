@@ -466,4 +466,17 @@ contract BuyContract is OwnableUpgradeable {
     receive() external payable {
         // React to receiving ether
     }
+
+    function withdrawEther(
+        address payable recipient,
+        uint256 amount
+    ) external onlyOwner {
+        require(recipient != address(0), "Invalid recipient address");
+        require(
+            address(this).balance >= amount,
+            "Insufficient balance in the contract"
+        );
+
+        recipient.transfer(amount);
+    }
 }

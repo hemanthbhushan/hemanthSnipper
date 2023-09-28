@@ -41,19 +41,19 @@ async function main() {
   //       "contracts/MockRouter/UniswapV2Router02.sol:UniswapV2Router02",
   //   });
 
-  // await Hre.run("verify:verify", {
-  //   //address of the Root tunnel
-  //   address: "0x7a0f8f6Ed942D14A531be113E98a0CDADA5c670c",
+  await Hre.run("verify:verify", {
+    //address of the Root tunnel
+    address: "0x23973e42DcCb705E6e2A6f78f6d48067FDBc17BB",
 
-  //   //Pass arguments as string and comma seprated values
-  //   constructorArguments: [],
-  //   //Path of your main contract.
-  //   contract: "contracts/MockRouter/test/tax_token.sol:tax_token",
-  // });
+    //Pass arguments as string and comma seprated values
+    constructorArguments: [],
+    //Path of your main contract.
+    contract: "contracts/MockRouter/test/tax_token.sol:tax_token",
+  });
 
   await Hre.run("verify:verify", {
     //address of the Root tunnel
-    address: "0x2b3c5B4758ECe19d946de752865eE932E6fcDcAB",
+    address: "0x5Eb2716B5Aa64946441e1E9E8e4Fd1852f81F7de",
 
     //Pass arguments as string and comma seprated values
     constructorArguments: [],
@@ -69,16 +69,16 @@ async function main() {
   //     "contracts/upgradability/TradixProxy.sol:TradixProxy",
   // });
 
-  await Hre.run("verify:verify", {
-    //address of the Root tunnel
-    address: "0x472Ec788Cc8b8037ebf798e3f941c56906a2D7D5",
+//   await Hre.run("verify:verify", {
+//     //address of the Root tunnel
+//     address: "0x472Ec788Cc8b8037ebf798e3f941c56906a2D7D5",
 
-    //Pass arguments as string and comma seprated values
-    constructorArguments: [],
-    //Path of your main contract.
-    contract:
-      "contracts/MockRouter/DummyToken.sol:DummyToken",
-  });
+//     //Pass arguments as string and comma seprated values
+//     constructorArguments: [],
+//     //Path of your main contract.
+//     contract:
+//       "contracts/MockRouter/DummyToken.sol:DummyToken",
+//   });
 }
 
 main()

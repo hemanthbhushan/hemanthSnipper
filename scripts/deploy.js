@@ -23,7 +23,7 @@ async function main() {
   // const Factory = await ethers.getContractFactory("UniswapV2Factory");
   // const Router = await ethers.getContractFactory("UniswapV2Router02");
   const BuyContract = await ethers.getContractFactory("BuyContract");
-  // const Tax_token = await ethers.getContractFactory("tax_token");
+  const Tax_token = await ethers.getContractFactory("tax_token");
   // const DummyToken = await ethers.getContractFactory("DummyToken");
   // const CallHash = await ethers.getContractFactory("CalHash");
   // const OwnedUpgradeabilityProxy = await ethers.getContractFactory(
@@ -53,15 +53,17 @@ async function main() {
   // await router.deployed();
   // console.log("Router: ", router.address);
 
-  // let tax_token = await Tax_token.deploy();
-  // await sleep(6000);
-  // tax_tokenAddress = await tax_token.getAddress();
-  // console.log("tax_tokenAddress: ", tax_tokenAddress);
+  let tax_token = await Tax_token.deploy();
+  await sleep(6000);
+  tax_tokenAddress = await tax_token.getAddress();
+  console.log("tax_tokenAddress: ", tax_tokenAddress);
 
   let buyContract = await BuyContract.deploy();
   await sleep(6000);
   buyContractAddress = await buyContract.getAddress();
   console.log("BuyContract: ", buyContractAddress);
+
+  
 
   // let proxy = await OwnedUpgradeabilityProxy.deploy();
   // await sleep(6000);
